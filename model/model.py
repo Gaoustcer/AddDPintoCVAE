@@ -1,8 +1,16 @@
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
+from math import sqrt
+from math import log
+def backwardhook(module,grad_in:torch.Tensor,C = 0.2,delta = 1e-5,epsilon = 0.001):
+    z = (sqrt(2 * log(1.25/delta)))/epsilon
+    grad_in.clip(-C,C)
+    epsilon_grad = grad_in + z * C * torch.randn_like(grad_in)
+    return epsilon_grad
+    # pass
 class Encoder(nn.Module):
-    def __init__(self) -> None:
+    def __init__(self,add_noise = False) -> None:
         super(Encoder,self).__init__()
         self.flatten = nn.Flatten()
         self.feature = nn.Sequential(
@@ -23,6 +31,9 @@ class Encoder(nn.Module):
             nn.Linear(32,16)
             # nn.ReLU()
         )
+        if add_noise:
+            for param in self.parameters():
+                param.register_hook(backwardhook)
     
     def forward(self,images,labels):
         images = self.flatten(images)
@@ -31,7 +42,7 @@ class Encoder(nn.Module):
         return self.muencode(feature),self.sigmaencode(feature)
 
 class Decoder(nn.Module):
-    def __init__(self) -> None:
+    def __init__(self,add_noise=True) -> None:
         super(Decoder,self).__init__()
         self.Decode = nn.Sequential(
             nn.Linear(16 + 10,128),
@@ -39,6 +50,9 @@ class Decoder(nn.Module):
             nn.Linear(128,28**2),
             nn.Sigmoid()
         )
+        if add_noise:
+            for param in self.parameters():
+                param.register_hook(backwardhook)
     
     def forward(self,sigma,mu,labels):
         noise = torch.randn_like(sigma).cuda()

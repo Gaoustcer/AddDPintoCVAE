@@ -10,9 +10,9 @@ import sys
 sys.path.append("..")
 from dataset import data_test,data_train
 class CVAE(object):
-    def __init__(self) -> None:
-        self.encoder = Encoder().cuda()
-        self.decoder = Decoder().cuda()
+    def __init__(self,add_noise=False) -> None:
+        self.encoder = Encoder(add_noise=add_noise).cuda()
+        self.decoder = Decoder(add_noise=add_noise).cuda()
         self.trainloader = DataLoader(data_train,batch_size=64)
         self.testloader = DataLoader(data_test,batch_size=1)
         self.optimencoder = torch.optim.Adam(self.encoder.parameters(),lr = 0.001)
