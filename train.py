@@ -1,8 +1,12 @@
 from ConditionAutoEncoder import CVAE
 import os
+from model.classifier import Trainforclassifier
 
-if __name__ == "__main__":
-    Condition_Variation_AutoEncoder = CVAE(add_noise=False)
+from model.classifiergenerate import classifiergenerate
+from dataset import data_train,data_test
+# if __name__ == "__main__":
+def traincvae():
+    Condition_Variation_AutoEncoder = CVAE(add_noise=False,latentspacedim=2)
     EPOCH = 32
     rootpath = "picture"
     if os.path.exists(rootpath) == False:
@@ -10,4 +14,19 @@ if __name__ == "__main__":
     for epoch in range(EPOCH):
         Condition_Variation_AutoEncoder.train()
         Condition_Variation_AutoEncoder.deduction(rootpath+"/deduction{}".format(epoch))
+        Condition_Variation_AutoEncoder.clean()
         
+
+def trainclassifier():
+    classifier = Trainforclassifier(testdataset=data_test,traindataset=data_train)
+    classifier.train()
+    classifier.save()
+    pass
+
+
+def trainclassifiergenerater():
+    generateclassifier = classifiergenerate()
+    generateclassifier.train()
+if __name__ == "__main__":
+    # trainclassifier()
+    trainclassifiergenerater()

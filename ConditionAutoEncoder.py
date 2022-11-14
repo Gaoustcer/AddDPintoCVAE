@@ -7,12 +7,13 @@ from torch.utils.tensorboard import SummaryWriter
 import os
 from model.model import Encoder,Decoder
 import sys
+import matplotlib.pyplot as plt
 sys.path.append("..")
 from dataset import data_test,data_train
 class CVAE(object):
-    def __init__(self,add_noise=False) -> None:
-        self.encoder = Encoder(add_noise=add_noise).cuda()
-        self.decoder = Decoder(add_noise=add_noise).cuda()
+    def __init__(self,add_noise=False,latentspacedim = 8) -> None:
+        self.encoder = Encoder(add_noise=add_noise,latentspacedim = latentspacedim).cuda()
+        self.decoder = Decoder(add_noise=add_noise,latentspacedim = latentspacedim).cuda()
         self.trainloader = DataLoader(data_train,batch_size=64)
         self.testloader = DataLoader(data_test,batch_size=1)
         self.optimencoder = torch.optim.Adam(self.encoder.parameters(),lr = 0.001)
@@ -22,23 +23,35 @@ class CVAE(object):
         self.gradlogindex = 0
         self.writer = SummaryWriter("./logs/loss")
         self.encodergradientlog = []
+        self.colors = plt.get_cmap('RdBu',10)
         for index,param in enumerate(self.encoder.parameters()):
             self.encodergradientlog.append(SummaryWriter("./log/gradient/encoder/grad{}".format(index)))
         for index,param in enumerate(self.decoder.parameters()):
             self.encodergradientlog.append(SummaryWriter("./log/gradient/decoder/grad{}".format(index)))
+        self.trainindex = 0
 
     def translabels(self,labels):
         one_hotlabels = torch.zeros((labels.shape[0],10)).cuda()
         one_hotlabels.scatter_(dim=1,index=labels.unsqueeze(1),src = torch.ones((labels.shape[0],10)).cuda())
 
         return one_hotlabels
+    
+    def scatter(self,latent_space,labels):
+        plt.scatter(x = latent_space[:,0],y = latent_space[:,1],c = self.colors(labels))
+    
+    def clean(self):
+        plt.savefig("distributions/pic{}.png".format(self.trainindex))
+        self.trainindex += 1
+        plt.figure()
     def train(self):
         for images,labels in tqdm(self.trainloader):
             images = images.cuda()
+            originlabels = labels
             labels = labels.cuda()
             labels = self.translabels(labels)
             mu,sigma = self.encoder(images,labels)
-            recon_images = self.decoder(sigma,mu,labels)
+            recon_images,feature = self.decoder(sigma,mu,originlabels)
+            self.scatter(feature,labels)
             different = F.binary_cross_entropy(recon_images.view(-1,28**2),images.view(-1,28**2),reduction='sum')
             # Kldiv = 1 + torch.log(torch.pow(sigma,2)) - torch.pow(sigma,2) - torch.pow(mu,2)
             Kldiv = -0.5 * torch.sum(1 + sigma - torch.pow(mu,2) - torch.exp(sigma))
@@ -54,6 +67,7 @@ class CVAE(object):
             self.optimencoder.step()
             # self.lossindex()
             self.loggradient()
+            # self.scatter()
 
     # def valid(self,path):
     #     index = 0
