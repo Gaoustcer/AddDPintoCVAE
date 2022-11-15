@@ -45,15 +45,15 @@ class classifiergenerate(object):
         self.decoder = generatenet().cuda()
         self.optim = torch.optim.Adam(self.decoder.parameters(),lr = 0.0001)
         self.batchsize = 32
-        self.epoch = 128
-        self.trainperepoch = 128
+        self.epoch = 1024
+        self.trainperepoch = 256
         self.writer = SummaryWriter("./logs/classifiergenerate")
         self.lossindex = 0
 
     def train(self):
         from tqdm import tqdm
-        for epoch in range(self.epoch):
-            for _ in tqdm(range(self.trainperepoch)):
+        for epoch in tqdm(range(self.epoch)):
+            for _ in (range(self.trainperepoch)):
                 labels = torch.randint(0,10,(self.batchsize,)).cuda()
                 picture = self.decoder(labels)
                 prob = self.classifier(picture.unsqueeze(1))

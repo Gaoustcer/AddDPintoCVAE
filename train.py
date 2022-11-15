@@ -1,7 +1,7 @@
 from ConditionAutoEncoder import CVAE
 import os
 from model.classifier import Trainforclassifier
-
+from model.generateimage import generateimages
 from model.classifiergenerate import classifiergenerate
 from dataset import data_train,data_test
 # if __name__ == "__main__":
@@ -24,9 +24,13 @@ def trainclassifier():
     pass
 
 
+def imagegenerate():
+    generator = generateimages()
+    generator.generatepicture()
 def trainclassifiergenerater():
     generateclassifier = classifiergenerate()
     generateclassifier.train()
 if __name__ == "__main__":
     # trainclassifier()
-    trainclassifiergenerater()
+    # trainclassifiergenerater()
+    imagegenerate()
