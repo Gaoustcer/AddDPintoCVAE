@@ -1,7 +1,7 @@
 import torchvision.transforms as T
 import torch
 class generateimages(object):
-    def __init__(self,path = "/model/generate/generate63.pkl",savepath = 'pictureclassifier/') -> None:
+    def __init__(self,path = "model/generate/generate739.pkl",savepath = 'pictureclassifier/') -> None:
         self.net = torch.load(path).cuda()
         self.transformer = T.ToPILImage()
         self.savepath = savepath

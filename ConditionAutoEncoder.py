@@ -12,6 +12,7 @@ sys.path.append("..")
 from dataset import data_test,data_train
 class CVAE(object):
     def __init__(self,add_noise=False,latentspacedim = 8) -> None:
+        self.latentspacedim = latentspacedim
         self.encoder = Encoder(add_noise=add_noise,latentspacedim = latentspacedim).cuda()
         self.decoder = Decoder(add_noise=add_noise,latentspacedim = latentspacedim).cuda()
         self.trainloader = DataLoader(data_train,batch_size=64)
@@ -23,6 +24,7 @@ class CVAE(object):
         self.gradlogindex = 0
         self.writer = SummaryWriter("./logs/loss")
         self.encodergradientlog = []
+        
         self.colors = plt.get_cmap('RdBu',10)
         for index,param in enumerate(self.encoder.parameters()):
             self.encodergradientlog.append(SummaryWriter("./log/gradient/encoder/grad{}".format(index)))
@@ -37,12 +39,36 @@ class CVAE(object):
         return one_hotlabels
     
     def scatter(self,latent_space,labels):
-        plt.scatter(x = latent_space[:,0],y = latent_space[:,1],c = self.colors(labels))
+        plt.scatter(x = latent_space.detach().cpu()[:,0],y = latent_space.detach().cpu()[:,1],c = self.colors(labels.detach().cpu()))
     
     def clean(self):
         plt.savefig("distributions/pic{}.png".format(self.trainindex))
         self.trainindex += 1
         plt.figure()
+
+    def save(self):
+        torch.save(self.decoder,'model/decoder')
+    
+    def pictureandlabels(self,size:int,path = "Picture/picturegenerate"):
+        labels = torch.randint(0,10,(size,)).cuda()
+        onehotlabels = self.translabels(labels)
+        # for index in 
+        mu = torch.zeros((size,self.latentspacedim)).to(torch.float32).cuda()
+        sigma = torch.ones((size,self.latentspacedim)).to(torch.float32).cuda()
+        # print("onehot labels",onehotlabels.shape)
+        picture = self.decoder(sigma,mu,onehotlabels)[0]
+        picture = torch.reshape(picture,(size,28,28)).cpu().detach()
+        for index in range(size):
+            image = self.transform(picture[index])
+            image.save(path+"/{}.png".format(index))
+        
+        import numpy as np
+        labels = labels.detach().cpu().numpy()
+        np.save(path + "/labels.npy",labels)
+
+        # onhotlabels = torch.zeros((size,10)).cuda()
+        # onhotlabels.scatter_(dim=1,index=labels.unsqueeze(1),src = torch.ones((size,10)).cuda())
+
     def train(self):
         for images,labels in tqdm(self.trainloader):
             images = images.cuda()
@@ -50,8 +76,8 @@ class CVAE(object):
             labels = labels.cuda()
             labels = self.translabels(labels)
             mu,sigma = self.encoder(images,labels)
-            recon_images,feature = self.decoder(sigma,mu,originlabels)
-            self.scatter(feature,labels)
+            recon_images,feature = self.decoder(sigma,mu,labels)
+            self.scatter(feature,originlabels)
             different = F.binary_cross_entropy(recon_images.view(-1,28**2),images.view(-1,28**2),reduction='sum')
             # Kldiv = 1 + torch.log(torch.pow(sigma,2)) - torch.pow(sigma,2) - torch.pow(mu,2)
             Kldiv = -0.5 * torch.sum(1 + sigma - torch.pow(mu,2) - torch.exp(sigma))
@@ -101,8 +127,8 @@ class CVAE(object):
         if os.path.exists(path) == False:
             os.mkdir(path)
         for index in range(10):
-            mu = torch.zeros((1,16)).to(torch.float32).cuda()
-            sigma = torch.ones((1,16)).to(torch.float32).cuda()
+            mu = torch.zeros((1,self.latentspacedim)).to(torch.float32).cuda()
+            sigma = torch.ones((1,self.latentspacedim)).to(torch.float32).cuda()
             labels = torch.tensor([index]).cuda()
             labels = self.translabels(labels)
             picture = self.decoder(mu,sigma,labels)

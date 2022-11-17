@@ -61,6 +61,9 @@ class Decoder(nn.Module):
         
         # output result is log sigma
         feature = noise * sigma + mu
+        # print("labels shape",labels.shape)
+        # print('sigma shape',sigma.shape)
+        # print("feature shape is",feature.shape)
         feature = torch.concat([feature,labels],-1)
         return self.Decode(feature),feature
 

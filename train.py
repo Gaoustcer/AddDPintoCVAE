@@ -11,6 +11,7 @@ def traincvae():
     rootpath = "picture"
     if os.path.exists(rootpath) == False:
         os.mkdir(rootpath)
+    Condition_Variation_AutoEncoder.pictureandlabels(128)
     for epoch in range(EPOCH):
         Condition_Variation_AutoEncoder.train()
         Condition_Variation_AutoEncoder.deduction(rootpath+"/deduction{}".format(epoch))
@@ -33,4 +34,5 @@ def trainclassifiergenerater():
 if __name__ == "__main__":
     # trainclassifier()
     # trainclassifiergenerater()
-    imagegenerate()
+    # imagegenerate()
+    traincvae()
