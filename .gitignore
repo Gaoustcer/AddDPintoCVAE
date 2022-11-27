@@ -1,0 +1,8 @@
+generatepicture/
+Picture/
+logs/
+distributions/
+**/__pycache__
+*.pkl
+**/generate
+data/
