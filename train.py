@@ -60,9 +60,9 @@ def trainclassifiergenerater():
     generateclassifier = classifiergenerate()
     generateclassifier.train()
 
-from dataset import data_train as traingroundtruth
-from dataset import data_test as validation
-from generatedataset import mydataset
+# from dataset import data_train as traingroundtruth
+# from dataset import data_test as validation
+# from generatedataset import mydataset
 
 def trainclassificationinrealdataandgeneratedata():
     trainlen = 8000
@@ -84,11 +84,18 @@ def trainclassificationinrealdataandgeneratedata():
     test in real dataset
     '''
     generate.train()
+
+from model.naiveclassifier import Attacker
+
+def trainattacker():
+    attacker = Attacker()
+    attacker.train()
 if __name__ == "__main__":
     # trainclassifier()
     # trainclassifiergenerater()
     # imagegenerate()
     # traincvae()
-    trainclassificationinrealdataandgeneratedata()
+    # trainclassificationinrealdataandgeneratedata()
+    trainattacker()
     # traincvae()
     # trainclassificationinrealdataandgeneratedata()

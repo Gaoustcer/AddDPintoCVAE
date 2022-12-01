@@ -21,7 +21,12 @@ class CVAE(object):
         self.testloader = DataLoader(data_test,batch_size=1)
         self.optimencoder = torch.optim.Adam(self.encoder.parameters(),lr = 0.001)
         self.optimdecoder = torch.optim.Adam(self.decoder.parameters(),lr = 0.001)
-        self.transform = T.ToPILImage()   
+        self.transform = T.ToPILImage()
+        self.alpha = 1
+        self.beta = 1
+        '''
+        loss = MSE_loss(images) + alpha * KLdiv + beta * classifierloss
+        '''   
         self.lossindex = 0 
         self.gradlogindex = 0
         self.writer = SummaryWriter("./logs/loss")
