@@ -6,3 +6,4 @@ distributions/
 *.pkl
 **/generate
 data/
+oldlogs/

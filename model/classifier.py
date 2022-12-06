@@ -15,13 +15,14 @@ net = nn.Sequential(
     # nn.Softmax()
 )
 class Trainforclassifier(object):
-    def __init__(self,testdataset,traindataset,logpath) -> None:
+    def __init__(self,testdataset,traindataset,logpath,savepath = "model/classifier.pkl",EPOCH = 16) -> None:
         self.net = net.cuda()
-        self.testloader = DataLoader(testdataset,batch_size=32)
-        self.trainloader = DataLoader(traindataset,batch_size=64)
+        self.savepath = savepath
+        self.testloader = DataLoader(testdataset,batch_size=32,shuffle=True)
+        self.trainloader = DataLoader(traindataset,batch_size=64,shuffle=True)
         self.testlen = len(testdataset)
         self.trainlen = len(traindataset)
-        self.EPOCH = 32
+        self.EPOCH = EPOCH
         self.optim = torch.optim.Adam(self.net.parameters(),lr = 0.0001)
         self.index = 0
         self.writer = SummaryWriter(logpath)
@@ -72,4 +73,4 @@ class Trainforclassifier(object):
     
 
     def save(self):
-        torch.save(self.net,"model/classifier.pkl")
+        torch.save(self.net,self.savepath)

@@ -51,14 +51,19 @@ def trainclassifier():
     classifier.train()
     classifier.save()
     pass
-
+from generatedataset import mydataset
+# from generatedataset import
+def trainclassifiergenerate():
+    classifier = Trainforclassifier(testdataset=data_test,traindataset=mydataset,logpath="logs/generateclassifier",savepath="model/generate.pkl")
+    classifier.train()
+    classifier.save()
 
 def imagegenerate():
     generator = generateimages()
     generator.generatepicture()
-def trainclassifiergenerater():
-    generateclassifier = classifiergenerate()
-    generateclassifier.train()
+# def trainclassifiergenerater():
+#     generateclassifier = classifiergenerate()
+#     generateclassifier.train()
 
 # from dataset import data_train as traingroundtruth
 # from dataset import data_test as validation
@@ -90,12 +95,24 @@ from model.naiveclassifier import Attacker
 def trainattacker():
     attacker = Attacker()
     attacker.train()
+from model.naiveclassifier import Combinetwodataset
+def combine():
+    dataset = Combinetwodataset(data_train,data_test)
+    from torch.utils.data import DataLoader
+    loader = DataLoader(dataset,batch_size=32,shuffle=True)
+    for images,labels,boollabels in loader:
+        print(images.shape)
+        print(labels.shape,labels)
+        print(boollabels.shape,boollabels)
+        exit()
 if __name__ == "__main__":
     # trainclassifier()
     # trainclassifiergenerater()
     # imagegenerate()
     # traincvae()
     # trainclassificationinrealdataandgeneratedata()
-    trainattacker()
+    # trainattacker()
+    trainclassifiergenerate()
+    # combine()
     # traincvae()
     # trainclassificationinrealdataandgeneratedata()
