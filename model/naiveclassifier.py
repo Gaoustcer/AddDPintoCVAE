@@ -83,7 +83,35 @@ class classifierattack(nn.Module):
 from torch.utils.data import DataLoader
 
 # def spilt(dataset,size):
-    
+class privacyattackdataset(Dataset):
+    def __init__(self,traindataset,testdataset) -> None:
+        super(privacyattackdataset,self).__init__()
+        self.imagelist = []
+        self.trainortest = []
+        self.labellist = []
+        for image,label in traindataset:
+            self.imagelist.append(image)
+            self.trainortest.append(1)
+            self.labellist.append(label)
+
+        for image,label in testdataset:
+            self.imagelist.append(image)
+            self.trainortest.append(0)
+            self.labellist.append(label)
+        
+        self.images = torch.stack(self.imagelist,dim = 0)
+
+    def __len__(self):
+        return len(self.labellist)
+
+    def __getitem__(self, index):
+        return self.images[index],self.labellist[index],self.trainortest[index]
+        # return super().__getitem__(index)
+
+class Membershipinfer(object):
+    def __init__(self,modelpath:str,traindataset,nottraindataset,validatedataset=None) -> None:
+        pass 
+
 class Attacker(object):
     def __init__(self) -> None:
         # 
