@@ -109,8 +109,33 @@ class privacyattackdataset(Dataset):
         # return super().__getitem__(index)
 
 class Membershipinfer(object):
-    def __init__(self,modelpath:str,traindataset,nottraindataset,validatedataset=None) -> None:
+    def __init__(self,modelpath:str,traindataset,nottraindataset,validatedataset=None,EPOCH = 32) -> None:
+        membershipdataset = privacyattackdataset(traindataset,nottraindataset)
+        totallen = len(membershipdataset)
+        trainlen = int(0.8 * totallen)
+        testlen = totallen - trainlen
+        self.trainlen = trainlen
+        self.testlen = testlen
+        trainmembershipdataset, testmembershipdataset = random_split(membershipdataset,(trainlen,testlen))
+        self.membershiploadertrain = DataLoader(trainmembershipdataset,batch_size=32)
+        self.membershiploadertest = DataLoader(testmembershipdataset,batch_size=32)
+        self.EPOCH = EPOCH
+        # self.targetmodel = torch.load(modelpath)
+        self.classification = classifierattack(classiferpath=modelpath).cuda()
+        # self.classification 
         pass 
+
+    def train(self):
+        pass
+
+    def validate(self):
+        count = 0
+        for images,labels in self.membershiploadertest:
+            classificationresult = self.classification(images.cuda().to(torch.float32))
+            labels = labels.cuda()
+            classificationresult = torch.max(classificationresult,dim=-1).indices
+            count += sum(classificationresult == labels)
+        return count/self.testlen
 
 class Attacker(object):
     def __init__(self) -> None:
