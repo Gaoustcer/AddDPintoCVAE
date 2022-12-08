@@ -109,7 +109,7 @@ class privacyattackdataset(Dataset):
         # return super().__getitem__(index)
 
 class Membershipinfer(object):
-    def __init__(self,modelpath:str,traindataset,nottraindataset,validatedataset=None,EPOCH = 32) -> None:
+    def __init__(self,modelpath:str,traindataset,nottraindataset,validatedataset=None,EPOCH = 32,LR = 0.0001,logdir = "logs/attacker") -> None:
         membershipdataset = privacyattackdataset(traindataset,nottraindataset)
         totallen = len(membershipdataset)
         trainlen = int(0.8 * totallen)
@@ -117,20 +117,36 @@ class Membershipinfer(object):
         self.trainlen = trainlen
         self.testlen = testlen
         trainmembershipdataset, testmembershipdataset = random_split(membershipdataset,(trainlen,testlen))
-        self.membershiploadertrain = DataLoader(trainmembershipdataset,batch_size=32)
-        self.membershiploadertest = DataLoader(testmembershipdataset,batch_size=32)
+        self.membershiploadertrain = DataLoader(trainmembershipdataset,batch_size=32,shuffle=True)
+        self.membershiploadertest = DataLoader(testmembershipdataset,batch_size=32,shuffle=True)
         self.EPOCH = EPOCH
         # self.targetmodel = torch.load(modelpath)
         self.classification = classifierattack(classiferpath=modelpath).cuda()
+        self.optimizer = torch.optim.Adam(self.classification.parameters(),lr  = LR)
+        from torch.utils.tensorboard import SummaryWriter
+        self.writer = SummaryWriter(log_dir=logdir)
         # self.classification 
         pass 
 
     def train(self):
-        pass
+        from tqdm import tqdm
+        for epoch in self.EPOCH:
+            for images,_,fromtrainortest in tqdm(self.membershiploadertrain):
+                self.optimizer.zero_grad()
+                images = images.cuda().to(torch.float32)
+                fromtrainortest = fromtrainortest.cuda()
+                predlabels = self.classification(images)
+                loss = F.cross_entropy(predlabels,fromtrainortest)
+                loss.backward()
+                self.optimizer.step()
+            acc_rate = self.validate()
+            self.writer.add_scalar("attacker_rate",acc_rate,epoch)
+            pass
+        # pass
 
     def validate(self):
         count = 0
-        for images,labels in self.membershiploadertest:
+        for images,_,labels in self.membershiploadertest:
             classificationresult = self.classification(images.cuda().to(torch.float32))
             labels = labels.cuda()
             classificationresult = torch.max(classificationresult,dim=-1).indices
