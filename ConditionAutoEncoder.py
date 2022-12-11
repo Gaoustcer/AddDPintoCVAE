@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 sys.path.append("..")
 from dataset import data_test,data_train
 class CVAE(object):
-    def __init__(self,add_noise=False,latentspacedim = 8) -> None:
+    def __init__(self,add_noise=False,latentspacedim = 8,logpath = "./logs/loss") -> None:
         self.classifier = torch.load("model/classifier.pkl").cuda()
         self.latentspacedim = latentspacedim
         self.encoder = Encoder(add_noise=add_noise,latentspacedim = latentspacedim).cuda()
@@ -29,14 +29,14 @@ class CVAE(object):
         '''   
         self.lossindex = 0 
         self.gradlogindex = 0
-        self.writer = SummaryWriter("./logs/loss")
-        self.encodergradientlog = []
+        self.writer = SummaryWriter(logpath)
+        # self.encodergradientlog = []
         self.generatepicturenumber = 128 ** 2
         self.colors = plt.get_cmap('RdBu',10)
-        for index,param in enumerate(self.encoder.parameters()):
-            self.encodergradientlog.append(SummaryWriter("./logs/gradient/encoder/grad{}".format(index)))
-        for index,param in enumerate(self.decoder.parameters()):
-            self.encodergradientlog.append(SummaryWriter("./logs/gradient/decoder/grad{}".format(index)))
+        # for index,param in enumerate(self.encoder.parameters()):
+        #     self.encodergradientlog.append(SummaryWriter("./logs/gradient/encoder/grad{}".format(index)))
+        # for index,param in enumerate(self.decoder.parameters()):
+        #     self.encodergradientlog.append(SummaryWriter("./logs/gradient/decoder/grad{}".format(index)))
         self.trainindex = 0
 
     def translabels(self,labels):

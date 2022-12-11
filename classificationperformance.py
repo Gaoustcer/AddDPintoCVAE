@@ -1,4 +1,6 @@
-from generatedataset import mydataset
+# from generatedataset import mydataset
+# from generatedataset import dpdataset
+from generatedataset import generatedataset
 from dataset import data_test,data_train
 from model.classifier import Trainforclassifier
 from torch.utils.data import random_split
@@ -19,6 +21,13 @@ def trainanobjectmodel():
     classifier.train()
     classifier.save()
 
+def _trainclassifierwithgeneratedpdata():
+    dpdataset = generatedataset("generatepicture_DP")
+    classifier = Trainforclassifier(testdataset=data_test,traindataset=dpdataset,logpath="./logs/classifier/dpclassifier",savepath="lods/models/dpmodel",EPOCH=8)
+    classifier.train()
+    classifier.save()
+    # rootpath = "generatepictur_DP"
+
     
 
 # import torch
@@ -38,4 +47,5 @@ if __name__ == "__main__":
     # trainanobjectmodel()
 
     # trainbaseline()
-    trainwithgenerate()
+    # trainwithgenerate()
+    _trainclassifierwithgeneratedpdata()

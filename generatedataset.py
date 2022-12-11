@@ -7,10 +7,10 @@ import numpy as np
 
 
 class generatedataset(Dataset):
-    def __init__(self) -> None:
+    def __init__(self,rootpath = "generatepicture") -> None:
         super(generatedataset,self).__init__()
         self.trans = T.ToTensor()
-        self.rootpath = "generatepicture/"
+        self.rootpath = rootpath
         Imagelist = []
         self.labellist = []
         from tqdm import tqdm
@@ -52,8 +52,8 @@ class generatedataset(Dataset):
     
     def __getitem__(self, index):
         return self.images[index],self.labellist[index]
-mydataset = generatedataset()
-
+# mydataset = generatedataset()
+# dpdataset = generatedataset("generatepicture_DP")
 if __name__ == "__main__":
     from torch.utils.data import DataLoader
     loader = DataLoader(generatedataset(),batch_size=32,shuffle=True)
