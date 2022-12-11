@@ -130,7 +130,7 @@ class Membershipinfer(object):
 
     def train(self):
         from tqdm import tqdm
-        for epoch in self.EPOCH:
+        for epoch in range(self.EPOCH):
             for images,_,fromtrainortest in tqdm(self.membershiploadertrain):
                 self.optimizer.zero_grad()
                 images = images.cuda().to(torch.float32)
