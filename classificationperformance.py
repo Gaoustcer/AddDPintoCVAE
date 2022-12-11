@@ -23,7 +23,7 @@ def trainanobjectmodel():
 
 def _trainclassifierwithgeneratedpdata():
     dpdataset = generatedataset("generatepicture_DP")
-    classifier = Trainforclassifier(testdataset=data_test,traindataset=dpdataset,logpath="./logs/classifier/dpclassifier",savepath="lods/models/dpmodel",EPOCH=8)
+    classifier = Trainforclassifier(testdataset=data_test,traindataset=dpdataset,logpath="./logs/classifier/dpclassifier",savepath="logs/models/dpmodel",EPOCH=64)
     classifier.train()
     classifier.save()
     # rootpath = "generatepictur_DP"
@@ -39,7 +39,8 @@ def trainbaseline():
     classifier.save()
 
 def trainwithgenerate():
-    classifier = Trainforclassifier(testdataset=data_test,traindataset=mydataset,logpath="logs/classifier/generatebaseline",savepath="logs/models/generatetoreal",EPOCH=8)
+    mydataset = generatedataset("generatepicture")
+    classifier = Trainforclassifier(testdataset=data_test,traindataset=mydataset,logpath="logs/classifier/generatebaseline",savepath="logs/models/generatetoreal",EPOCH=64)
     classifier.train()
     classifier.save()
 

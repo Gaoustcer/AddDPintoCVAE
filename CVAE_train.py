@@ -5,7 +5,7 @@ import torchvision.transforms as T
 from tqdm import tqdm
 
 
-def _trainCVAE(numberofimages = 1024,rootpath = "generatepicture_DP",logpath = "./logs/dp_loss",EPOCH = 8,add_noise = True):
+def _trainCVAE(numberofimages = 1024,rootpath = "generatepicture_DP",logpath = "./logs/traincvae/dp_loss",EPOCH = 8,add_noise = True):
     transformer = T.ToPILImage()
     ConditionalAutoEncoder = CVAE(add_noise=add_noise,latentspacedim=8,logpath=logpath)
     # EPOCH = 8
@@ -37,4 +37,4 @@ def _trainCVAE(numberofimages = 1024,rootpath = "generatepicture_DP",logpath = "
 
 
 if __name__ == "__main__":
-    _trainCVAE()
+    _trainCVAE(rootpath="generatepicture",logpath="./logs/traincvae/loss",EPOCH=8,add_noise=False)

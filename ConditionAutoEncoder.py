@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 sys.path.append("..")
 from dataset import data_test,data_train
 class CVAE(object):
-    def __init__(self,add_noise=False,latentspacedim = 8,logpath = "./logs/loss") -> None:
+    def __init__(self,add_noise=False,latentspacedim = 8,logpath = "./logs/loss",use_classifier_for_pretrain = False) -> None:
         self.classifier = torch.load("model/classifier.pkl").cuda()
         self.latentspacedim = latentspacedim
         self.encoder = Encoder(add_noise=add_noise,latentspacedim = latentspacedim).cuda()
