@@ -5,7 +5,9 @@ import os
 from dataset import data_train
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
-
+from dataset import data_test
+from generatedataset import mixturedataset
+from torch.utils.data import random_split
 
 class Indistributiontrain(object):
     def __init__(self,log_path ="./logs/OODdetection/IIDtrain") -> None:
@@ -37,12 +39,31 @@ class Indistributiontrain(object):
             self.writer.add_scalar("classificationloss",classificationloss,self.index)
             reconstructloss = F.binary_cross_entropy(reconstructionimages,images)
             self.writer.add_scalar("reconstructloss",reconstructloss,self.index)
+            loss = classificationloss + reconstructloss
+            loss.backward()
+            self.optim.step()
             self.index += 1
     
     def save(self):
         torch.save(self.Indistribution,self.modelpath)
 
 
+class trainforsmoothclassifier(object):
+    # from dataset import data_test
+    # from generatedataset import mixturedataset
+    def __init__(self,load_pretrain_model = True,model_path = "./logs/IIDtrain",real_dataset = data_test) -> None:
+        if load_pretrain_model:
+            self.model = torch.load(model_path).cuda()
+        else:
+            raise NotImplementedError
+        dataset = mixturedataset(real_dataset)
+        trainlen = 18000
+        validationlen = len(self.dataset) - trainlen
+        traindataset, testdataset = random_split(dataset,(trainlen,validationlen))
+        pass
+    pass
+
 if __name__ == "__main__":
     trainobject = Indistributiontrain()
     trainobject.train()
+    trainobject.save()

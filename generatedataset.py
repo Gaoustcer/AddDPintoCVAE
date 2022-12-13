@@ -6,6 +6,29 @@ import torch
 import numpy as np
 
 
+class mixturedataset(Dataset):
+    def __init__(self,real_dataset) -> None:
+        super(mixturedataset,self).__init__()
+        # realimages = generatedataset("generatepicture")
+        fakeimages = generatedataset("generatepicture_DP")
+        imagelist = []
+        labellist = []
+        for image,_ in real_dataset:
+            imagelist.append(image)
+            labellist.append(1)
+        for imega,_ in fakeimages:
+            imagelist.append(imega)
+            labellist.append(0)
+        self.labellist = labellist
+        self.imagelist = torch.stack(imagelist,dim = 0)
+    def __len__(self):
+        return len(self.labellist)
+    
+    def __getitem__(self, index) :
+        return self.imagelist[index], self.labellist[index]
+        # return super().__getitem__(index)
+
+
 class generatedataset(Dataset):
     def __init__(self,rootpath = "generatepicture") -> None:
         super(generatedataset,self).__init__()
@@ -56,11 +79,18 @@ class generatedataset(Dataset):
 # dpdataset = generatedataset("generatepicture_DP")
 if __name__ == "__main__":
     from torch.utils.data import DataLoader
-    loader = DataLoader(generatedataset(),batch_size=32,shuffle=True)
-    for image,label in loader:
-        print(image.shape)
-        print(label.shape)
-        print(label)
-        exit()
+    from dataset import data_train
+    dataset = mixturedataset(data_train)
+    loader = DataLoader(dataset,batch_size=32)
+    for images,labels in loader:
+        print(images.shape)
+        print(labels.shape)
+        print(labels)
+    # loader = DataLoader(generatedataset(),batch_size=32,shuffle=True)
+    # for image,label in loader:
+    #     print(image.shape)
+    #     print(label.shape)
+    #     print(label)
+    #     exit()
         # return super().__getitem__(index)
         
