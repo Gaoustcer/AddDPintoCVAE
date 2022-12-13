@@ -80,7 +80,7 @@ class classifierood(nn.Module):
             nn.ReLU(),
             nn.Linear(64,32),
             nn.ReLU(),
-            nn.Linear(32,10)
+            nn.Linear(32,2)
         )
     
     def forward(self,features,classifications,reconstruction):
