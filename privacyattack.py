@@ -10,6 +10,7 @@ if __name__ == "__main__":
     softmaxtensor = softmaxlayer(tensor)
     label = torch.randint(0,2,3)
     print(label)
+    crossentropyloss = F.cross_entropy(softmaxtensor,label)
     # targetmodelpath = "./logs/models/targetmodel"
     # traindatapath = "./logs/traindataset"
     # testdatapath = "./logs/testdataset"

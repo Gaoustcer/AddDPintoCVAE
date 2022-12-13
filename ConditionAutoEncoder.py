@@ -14,6 +14,9 @@ from dataset import data_test,data_train
 class CVAE(object):
     def __init__(self,add_noise=False,latentspacedim = 8,logpath = "./logs/loss",use_classifier_for_pretrain = False) -> None:
         self.classifier = torch.load("model/classifier.pkl").cuda()
+        self.logpath = logpath + '/model'
+        if os.path.exists(self.logpath):
+            os.mkdir(self.logpath)
         self.latentspacedim = latentspacedim
         self.encoder = Encoder(add_noise=False,latentspacedim = latentspacedim).cuda()
         self.decoder = Decoder(add_noise=add_noise,latentspacedim = latentspacedim).cuda()
@@ -54,8 +57,8 @@ class CVAE(object):
         plt.figure()
 
     def save(self):
-        torch.save(self.encoder,'model/encoder')
-        torch.save(self.decoder,'model/decoder')
+        torch.save(self.encoder,self.logpath + '/encoder')
+        torch.save(self.decoder,self.logpath + '/decoder')
     
     def pictureandlabels(self,size:int,path = "Picture/picturegenerate"):
         labels = torch.randint(0,10,(size,)).cuda()
