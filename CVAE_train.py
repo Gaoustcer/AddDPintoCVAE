@@ -37,4 +37,5 @@ def _trainCVAE(numberofimages = 1024,rootpath = "generatepicture_DP",logpath = "
 
 
 if __name__ == "__main__":
-    _trainCVAE(rootpath="generatepicture",logpath="./logs/traincvae/loss",EPOCH=8,add_noise=False)
+    _trainCVAE(rootpath="generatepicture_DP",logpath="./logs/traincvae/dp_loss",EPOCH=16,add_noise=True)
+    # _trainCVAE(rootpath="generatepicture",logpath="./logs/traincvae/loss",EPOCH=8,add_noise=False)

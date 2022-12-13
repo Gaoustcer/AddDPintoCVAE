@@ -15,7 +15,7 @@ class CVAE(object):
     def __init__(self,add_noise=False,latentspacedim = 8,logpath = "./logs/loss",use_classifier_for_pretrain = False) -> None:
         self.classifier = torch.load("model/classifier.pkl").cuda()
         self.latentspacedim = latentspacedim
-        self.encoder = Encoder(add_noise=add_noise,latentspacedim = latentspacedim).cuda()
+        self.encoder = Encoder(add_noise=False,latentspacedim = latentspacedim).cuda()
         self.decoder = Decoder(add_noise=add_noise,latentspacedim = latentspacedim).cuda()
         self.trainloader = DataLoader(data_train,batch_size=256)
         self.testloader = DataLoader(data_test,batch_size=1)
