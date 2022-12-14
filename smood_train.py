@@ -52,14 +52,14 @@ class Indistributiontrain(object):
 class trainforsmoothclassifier(object):
     # from dataset import data_test
     # from generatedataset import mixturedataset
-    def __init__(self,load_pretrain_model = True,model_path = "./logs/IIDtrain/modelsaved/model",real_dataset = data_test,log_path = "./logs/OODdetection/OODdetect") -> None:
+    def __init__(self,load_pretrain_model = True,model_path = "./logs/OODdetection/IIDtrain/modelsaved/model",real_dataset = data_test,log_path = "./logs/OODdetection/OODdetect") -> None:
         if load_pretrain_model:
             self.model = torch.load(model_path).cuda()
         else:
             raise NotImplementedError
         dataset = mixturedataset(real_dataset)
         trainlen = 18000
-        validationlen = len(self.dataset) - trainlen
+        validationlen = len(dataset) - trainlen
         self.validationlen = validationlen
         traindataset, testdataset = random_split(dataset,(trainlen,validationlen))
         self.trainloader = DataLoader(traindataset,batch_size=32)
@@ -68,9 +68,9 @@ class trainforsmoothclassifier(object):
         self.EPOCH = 32
         self.logpath = log_path
         self.writer = SummaryWriter(self.logpath)
-        self.modelpath = os.path.join(self.logpath,"model")
+        self.modelpath = os.path.join(self.logpath,"classificationmodel")
         self.classification = classifierood().cuda()
-        self.optimizer = torch.optim.Adam()
+        self.optimizer = torch.optim.Adam(self.classification.parameters(),lr = 0.0001)
 
     
     def train(self):
@@ -86,7 +86,9 @@ class trainforsmoothclassifier(object):
                 with torch.no_grad():
                     features,labels,reconstructionresult = self.model(images)
                 classification = self.classification(features,labels,reconstructionresult)
-                loss = F.mse_loss(classification,reallabels)
+                # print(classification.shape)
+                # print(reallabels.shape)
+                loss = F.cross_entropy(classification,reallabels)
                 loss.backward()
                 self.writer.add_scalar("loss",loss,self.index)
                 self.index += 1
@@ -97,7 +99,7 @@ class trainforsmoothclassifier(object):
         samecount = 0
         from tqdm import tqdm
         with torch.no_grad():
-            for images,reallabels in tqdm(self.testloader):
+            for images,reallabels in (self.testloader):
                 images = images.cuda()
                 reallabels = reallabels.cuda()
                 features,labels,reconstructionresult = self.model(images)
@@ -105,6 +107,9 @@ class trainforsmoothclassifier(object):
                 maxindices = torch.max(classification,dim=-1).indices
                 samecount += sum(maxindices == reallabels)
         return samecount/self.validationlen
+    
+    def save(self):
+        torch.save(self.classification,self.modelpath)
 
         # pass
 
@@ -132,3 +137,4 @@ if __name__ == "__main__":
 
     detectood = trainforsmoothclassifier()
     detectood.train()
+    detectood.save()

@@ -12,9 +12,16 @@ import matplotlib.pyplot as plt
 sys.path.append("..")
 from dataset import data_test,data_train
 class CVAE(object):
-    def __init__(self,add_noise=False,latentspacedim = 8,logpath = "./logs/loss",use_classifier_for_pretrain = False) -> None:
-        self.classifier = torch.load("model/classifier.pkl").cuda()
-        self.logpath = logpath + '/model'
+    def __init__(self,add_noise=False,latentspacedim = 8,logpath = "./logs/OODdetection",use_classifier_for_pretrain = False,\
+        path_feature_extraction = "./logs/OODdetection/IIDtrain/modelsaved/model",\
+        path_ood_classifier = "./logs/OODdetection/OODdetect/classificationmodel") -> None:
+        # self.classifier = torch.load("model/classifier.pkl").cuda()
+        # self.featureextraction = torch.load()
+        # if use_classifier_for_pretrai
+        self.use_classifcation_pretrain = use_classifier_for_pretrain
+        self.featureextractionnet = torch.load(path_feature_extraction).cuda()
+        self.oodclassifier = torch.load(path_ood_classifier).cuda()
+        self.logpath = logpath + '/CVAE'
         if os.path.exists(self.logpath):
             os.mkdir(self.logpath)
         self.latentspacedim = latentspacedim
@@ -117,6 +124,15 @@ class CVAE(object):
         # import numpy as np
 
         # np.save("./generatepicture/label.npy",labels)
+    
+    def classificationloss(self,images:torch.Tensor):
+        features,labels,reconstructionresult = self.featureextractionnet(images)
+        classification = self.oodclassifier(features,labels,reconstructionresult)
+        '''
+        1 represent for real data 0 represent for fake data
+        '''
+        return classification[:,1]
+
     def train(self):
         for images,labels in tqdm(self.trainloader):
             images = images.cuda()
@@ -131,6 +147,8 @@ class CVAE(object):
             Kldiv = -0.5 * torch.sum(1 + sigma - torch.pow(mu,2) - torch.exp(sigma))
             # Kldiv = torch.mul(-0.5,Kldiv).mean()
             loss = different + Kldiv
+            if self.use_classifcation_pretrain == True:
+                loss += torch.mean(self.classificationloss(images))
             # loss = different
             self.optimdecoder.zero_grad()
             self.optimencoder.zero_grad()
