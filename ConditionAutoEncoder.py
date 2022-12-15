@@ -93,8 +93,8 @@ class CVAE(object):
             rootpath = "generatepicture/{}".format(i)
             if os.path.exists(rootpath) == False:
                 os.mkdir(rootpath)
-            labels = self.translabels(torch.ones((1,),dtype=torch.int64).cuda() * numberperlabel)
-
+            # labels = self.translabels(torch.ones((1,),dtype=torch.int64).cuda() * numberperlabel)
+            labels = torch.ones((numberperlabel,),dtype=torch.int64).cuda() * i
             # for j in range(numberperlabel):
             # for j in range(numberperlabel):
             
@@ -132,14 +132,16 @@ class CVAE(object):
         '''
         1 represent for real data 0 represent for fake data
         '''
-        return classification[:,1] - classification[:,0]
+        labels = torch.ones(images.shape[0],dtype=torch.int64).cuda()
+        # return classification[:,1] - classification[:,0]
+        return F.cross_entropy(classification,labels)
 
     def train(self):
         for images,labels in tqdm(self.trainloader):
             images = images.cuda()
             originlabels = labels
             labels = labels.cuda()
-            labels = self.translabels(labels)
+            # labels = self.translabels(labels)
             mu,sigma = self.encoder(images,labels)
             recon_images,feature = self.decoder(sigma,mu,labels)
             self.scatter(feature,originlabels)
@@ -150,7 +152,7 @@ class CVAE(object):
             loss = different + Kldiv
             self.writer.add_scalar('loss',loss,self.lossindex)
             if self.use_classifcation_pretrain == True:
-                classificationloss = self.beta * torch.sum(self.classificationloss(images))
+                classificationloss = self.beta * self.classificationloss(images)
                 # print("add classification loss")
                 # print(classificationloss)
                 self.writer.add_scalar("classification",classificationloss,self.lossindex)

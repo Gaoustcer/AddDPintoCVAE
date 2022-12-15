@@ -28,7 +28,12 @@ def _trainclassifierwithgeneratedpdata():
     classifier.save()
     # rootpath = "generatepictur_DP"
 
-    
+
+def _trainwithgeneratebaselinewithclassifier():
+    dataset = generatedataset("generatepicture_baselinewithclassifier")
+    classifier = Trainforclassifier(testdataset=data_test,traindataset=dataset,logpath="./logs/classifier/generatewithclassidier",savepath="./logs/models/generatewithckassifier",EPOCH=64)
+    classifier.train()
+    classifier.save() 
 
 # import torch
 # torch.save()
@@ -55,5 +60,6 @@ if __name__ == "__main__":
 
     # trainbaseline()
     # trainwithgenerate()
+    _trainwithgeneratebaselinewithclassifier()
     # _trainclassifierwithgeneratedpdata()
-    trainwithgenerateood(load_from_file="./logs/models/oodmodel")
+    # trainwithgenerateood(load_from_file="./logs/models/oodmodel")

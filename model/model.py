@@ -24,12 +24,22 @@ class Encoder(nn.Module):
     def __init__(self,add_noise = False,latentspacedim = 2) -> None:
         super(Encoder,self).__init__()
         self.flatten = nn.Flatten()
-        self.feature = nn.Sequential(
-            # nn.Flatten(),
-            nn.Linear(28**2 + 10,128),
-            nn.ReLU(),
-            nn.Linear(128,64)
+        self.embedding = nn.Embedding(num_embeddings=10,
+            embedding_dim=32
         )
+        self.feature = nn.Sequential(
+            nn.Conv2d(in_channels=1,out_channels=1,kernel_size=3,stride=2),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=1,out_channels=1,kernel_size=2,stride=2),
+            nn.Flatten(),
+            nn.Linear(36,32)
+        )
+        # self.feature = nn.Sequential(
+        #     # nn.Flatten(),
+        #     nn.Linear(28**2 + 10,128),
+        #     nn.ReLU(),
+        #     nn.Linear(128,32)
+        # )
         self.muencode = nn.Sequential(
             nn.Linear(64,32),
             nn.ReLU(),
@@ -47,26 +57,34 @@ class Encoder(nn.Module):
                 param.register_hook(backwardhook)
     
     def forward(self,images,labels):
-        images = self.flatten(images)
-        feature = torch.concat([images,labels],-1)
-        feature = self.feature(feature)
+        # images = self.flatten(images)
+        feature = self.feature(images)
+        labels = self.embedding(labels)
+        feature = torch.concat([feature,labels],-1)
+        # feature = torch.concat([images,labels],-1)
+        # print("feature shape is",feature.shape)
+        # feature = self.feature(feature)
         return self.muencode(feature),self.sigmaencode(feature)
 
 class Decoder(nn.Module):
     def __init__(self,add_noise=True,latentspacedim = 2) -> None:
         super(Decoder,self).__init__()
+        # self.feature 
         self.Decode = nn.Sequential(
-            nn.Linear(latentspacedim + 10,128),
+            nn.Linear(latentspacedim + 32,128),
             nn.ReLU(),
             nn.Linear(128,28**2),
             nn.Sigmoid()
         )
+        self.embedding = nn.Embedding(num_embeddings=10,
+            embedding_dim=32)
         if add_noise:
             for param in self.parameters():
                 param.register_hook(backwardhook)
         
     
     def forward(self,sigma,mu,labels):
+        labels = self.embedding(labels)
         noise = torch.randn_like(sigma).cuda()
         sigma = torch.exp(0.5 * sigma)
         

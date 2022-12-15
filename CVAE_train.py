@@ -23,7 +23,7 @@ def _trainCVAE(numberofimages = 1024,rootpath = "generatepicture_DP",logpath = "
         mu = torch.zeros((numberofimages,ConditionalAutoEncoder.latentspacedim)).cuda()
         sigma = torch.ones((numberofimages,ConditionalAutoEncoder.latentspacedim)).cuda()
         labels = torch.ones((numberofimages,),dtype=torch.int64).cuda() * label
-        labels = ConditionalAutoEncoder.translabels(labels)
+        # labels = ConditionalAutoEncoder.translabels(labels)
         pictures = ConditionalAutoEncoder.decoder(mu,sigma,labels)[0]
         pictures = torch.reshape(pictures,(-1,28,28))
         # print(pictures.shape)
@@ -35,10 +35,11 @@ def _trainCVAE(numberofimages = 1024,rootpath = "generatepicture_DP",logpath = "
     
     for label in range(10):
         imagededuction(label)
+    ConditionalAutoEncoder.save()
 
 
 if __name__ == "__main__":
-    _trainCVAE(rootpath="generatepicture_DP_epsilon=10_delta=1e-5",logpath="./logs/traincvae/dp_loss_epsilon=10_delta=1e-5",EPOCH=16,add_noise=True,use_classification=False)
+    _trainCVAE(rootpath="generatepicture_baselinewithclassifier",logpath="./logs/traincvae/baselinewithclassification",EPOCH=16,add_noise=False,use_classification=True)
     # _trainCVAE(rootpath="generatepicture_withood",logpath="./logs/traincvae/dp_ood",EPOCH=16,add_noise=True,use_classification=True)
     # _trainCVAE(rootpath="generatepicture_DP",logpath="./logs/traincvae/dp_loss",EPOCH=16,add_noise=True)
     # _trainCVAE(rootpath="generatepicture",logpath="./logs/traincvae/loss",EPOCH=8,add_noise=False)
