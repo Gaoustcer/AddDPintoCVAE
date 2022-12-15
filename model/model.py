@@ -6,7 +6,7 @@ from math import log
 def backwardhook(grad_in:torch.Tensor,C = 0.8,delta = 1e-5,epsilon = 10):
     z = (sqrt(2 * log(1.25/delta)))/epsilon
     # grad_in.clip(-C,C)
-    normal = torch.max(1,torch.norm(grad_in,p=2)/C)
+    normal = max(1,torch.norm(grad_in,p=2)/C)
     grad_in /= normal
     epsilon_grad = grad_in + z * C * torch.randn_like(grad_in)
     return epsilon_grad

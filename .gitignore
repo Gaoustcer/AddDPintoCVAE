@@ -8,4 +8,5 @@ distributions/
 data/
 oldlogs/
 **/generatepicture_DP
+**/generatepicture_DP_epsilon=10_delta=1e-5
 **/generatepicture_withood

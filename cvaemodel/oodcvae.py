@@ -41,8 +41,8 @@ class cvaeforeachclass(object):
         self.EPOCH = EPOCH
         self.optimencoder = torch.optim.Adam(self.encoder.parameters(),lr = 0.0001)
         self.optimdecoder = torch.optim.Adam(self.decoder.parameters(),lr = 0.0001) 
-
-       
+        self.optimfeature = torch.optim.Adam(self.featurenet.parameters(),lr = 0.0001)
+        self.optimoodclassification = torch.optim.Adam(self.oodclassificationnet.parameters(),lr = 0.0001)
     
 
     # pass
