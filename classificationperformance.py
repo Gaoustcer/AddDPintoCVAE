@@ -44,9 +44,16 @@ def trainwithgenerate():
     classifier.train()
     classifier.save()
 
+def trainwithgenerateood():
+    mydataset = generatedataset("generatepicture_withood")
+    classifier = Trainforclassifier(testdataset=data_test,traindataset=mydataset,logpath='./logs/classifier/ood',savepath="./logs/models/oodmodel",EPOCH=64)
+    classifier.train()
+    classifier.save()
+
 if __name__ == "__main__":
     # trainanobjectmodel()
 
     # trainbaseline()
     # trainwithgenerate()
-    _trainclassifierwithgeneratedpdata()
+    # _trainclassifierwithgeneratedpdata()
+    trainwithgenerateood()

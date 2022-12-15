@@ -33,7 +33,7 @@ class CVAE(object):
         self.optimdecoder = torch.optim.Adam(self.decoder.parameters(),lr = 0.001)
         self.transform = T.ToPILImage()
         self.alpha = 1
-        self.beta = 1
+        self.beta = 40
         '''
         loss = MSE_loss(images) + alpha * KLdiv + beta * classifierloss
         '''   
@@ -48,6 +48,7 @@ class CVAE(object):
         # for index,param in enumerate(self.decoder.parameters()):
         #     self.encodergradientlog.append(SummaryWriter("./logs/gradient/decoder/grad{}".format(index)))
         self.trainindex = 0
+        # self.alpha = 100
 
     def translabels(self,labels):
         one_hotlabels = torch.zeros((labels.shape[0],10)).cuda()
@@ -83,7 +84,7 @@ class CVAE(object):
         import numpy as np
         labels = labels.detach().cpu().numpy()
         np.save(path + "/labels.npy",labels)
-
+        
         # onhotlabels = torch.zeros((size,10)).cuda()
         # onhotlabels.scatter_(dim=1,index=labels.unsqueeze(1),src = torch.ones((size,10)).cuda())
     def generate(self,numberperlabel):
@@ -131,7 +132,7 @@ class CVAE(object):
         '''
         1 represent for real data 0 represent for fake data
         '''
-        return classification[:,1]
+        return classification[:,1] - classification[:,0]
 
     def train(self):
         for images,labels in tqdm(self.trainloader):
@@ -147,13 +148,18 @@ class CVAE(object):
             Kldiv = -0.5 * torch.sum(1 + sigma - torch.pow(mu,2) - torch.exp(sigma))
             # Kldiv = torch.mul(-0.5,Kldiv).mean()
             loss = different + Kldiv
+            self.writer.add_scalar('loss',loss,self.lossindex)
             if self.use_classifcation_pretrain == True:
-                loss += torch.mean(self.classificationloss(images))
+                classificationloss = self.beta * torch.sum(self.classificationloss(images))
+                # print("add classification loss")
+                # print(classificationloss)
+                self.writer.add_scalar("classification",classificationloss,self.lossindex)
+                loss -= classificationloss
             # loss = different
             self.optimdecoder.zero_grad()
             self.optimencoder.zero_grad()
             loss.backward()
-            self.writer.add_scalar('loss',loss,self.lossindex)
+            
             self.lossindex += 1
             self.optimdecoder.step()
             self.optimencoder.step()

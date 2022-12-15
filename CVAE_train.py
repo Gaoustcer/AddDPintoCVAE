@@ -5,9 +5,10 @@ import torchvision.transforms as T
 from tqdm import tqdm
 
 
-def _trainCVAE(numberofimages = 1024,rootpath = "generatepicture_DP",logpath = "./logs/traincvae/dp_loss",EPOCH = 8,add_noise = True):
+def _trainCVAE(numberofimages = 1024,rootpath = "generatepicture_DP",logpath = "./logs/traincvae/dp_loss",EPOCH = 8,add_noise = True,\
+    use_classification = False):
     transformer = T.ToPILImage()
-    ConditionalAutoEncoder = CVAE(add_noise=add_noise,latentspacedim=8,logpath=logpath)
+    ConditionalAutoEncoder = CVAE(add_noise=add_noise,latentspacedim=8,logpath=logpath,use_classifier_for_pretrain=use_classification)
     # EPOCH = 8
     for epoch in range(EPOCH):
         ConditionalAutoEncoder.train()
@@ -37,5 +38,6 @@ def _trainCVAE(numberofimages = 1024,rootpath = "generatepicture_DP",logpath = "
 
 
 if __name__ == "__main__":
-    _trainCVAE(rootpath="generatepicture_DP",logpath="./logs/traincvae/dp_loss",EPOCH=16,add_noise=True)
+    _trainCVAE(rootpath="generatepicture_withood",logpath="./logs/traincvae/dp_ood",EPOCH=16,add_noise=True,use_classification=True)
+    # _trainCVAE(rootpath="generatepicture_DP",logpath="./logs/traincvae/dp_loss",EPOCH=16,add_noise=True)
     # _trainCVAE(rootpath="generatepicture",logpath="./logs/traincvae/loss",EPOCH=8,add_noise=False)
