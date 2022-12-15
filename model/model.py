@@ -3,11 +3,22 @@ import torch
 import torch.nn.functional as F
 from math import sqrt
 from math import log
-def backwardhook(grad_in:torch.Tensor,C = 0.8,delta = 1e-3,epsilon = 0.01):
+def backwardhook(grad_in:torch.Tensor,C = 0.8,delta = 1e-5,epsilon = 10):
     z = (sqrt(2 * log(1.25/delta)))/epsilon
-    grad_in.clip(-C,C)
+    # grad_in.clip(-C,C)
+    normal = torch.max(1,torch.norm(grad_in,p=2)/C)
+    grad_in /= normal
     epsilon_grad = grad_in + z * C * torch.randn_like(grad_in)
     return epsilon_grad
+
+'''
+clip: g = g/(1,\parallel g\parallel/2)
+add noise into grad N(0,\sigma^2I)
+will gurantee (\epsilon,\delta)-DP
+\sigma = \sqrt{2\log \frac{1.25}{\delta}} /\epsilon 
+epsilon = 10,delta = 10^{-5}
+\sigma = 
+'''
     # pass
 class Encoder(nn.Module):
     def __init__(self,add_noise = False,latentspacedim = 2) -> None:

@@ -3,6 +3,15 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 # from dataset import data_test
+from generatedataset import generatedataset
+from torch.utils.data import DataLoader
+
+
+
+def testdatsettrainiid(rootpath = "generatepicture_withood"):
+    dataset = generatedataset(rootpath)
+    loader = DataLoader(dataset)
+
 
 if __name__ == "__main__":
     tensor = torch.rand(3,2)

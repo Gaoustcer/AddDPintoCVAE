@@ -1,0 +1,48 @@
+import torch.nn as nn
+
+import torch
+from torch.utils.data import DataLoader
+
+from model.model import Encoder,Decoder
+from torch.utils.tensorboard import SummaryWriter
+from model.smood import iddata as imagefeaturenet
+from model.smood import classifierood as oodclassification
+# from dataset import data_train
+
+
+
+
+
+class cvaeforeachclass(object):
+    def __init__(self,
+        logpath, # path to write logs
+        modelsavepath, # path to save model
+        load_oodmodel,
+        oodfeaturenetpath,
+        oodclassificationpath,
+        latent_dim,
+        add_noise,
+        data_train,
+        EPOCH = 32
+    ) -> None:
+        self.encoder = Encoder(add_noise=False,latentspacedim=latent_dim).cuda()
+        self.decoder = Decoder(add_noise=add_noise,latentspacedim=latent_dim).cuda()
+        self.traindata = data_train
+        self.trainloader = DataLoader(self.traindata,batch_size=32)
+        if load_oodmodel:
+            self.featurenet = torch.load(oodfeaturenetpath).cuda()
+            self.oodclassificationnet = torch.load(oodclassificationpath).cuda()
+        else:
+            self.featurenet = imagefeaturenet().cuda()
+            self.oodclassificationnet = oodclassification().cuda()
+        self.logpath = logpath
+        self.modelsavedpath = modelsavepath
+        self.writer = SummaryWriter(self.logpath)
+        self.EPOCH = EPOCH
+        self.optimencoder = torch.optim.Adam(self.encoder.parameters(),lr = 0.0001)
+        self.optimdecoder = torch.optim.Adam(self.decoder.parameters(),lr = 0.0001) 
+
+       
+    
+
+    # pass

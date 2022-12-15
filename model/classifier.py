@@ -15,17 +15,20 @@ net = nn.Sequential(
     # nn.Softmax()
 )
 class Trainforclassifier(object):
-    def __init__(self,testdataset,traindataset,logpath,savepath = "model/classifier.pkl",EPOCH = 16) -> None:
-        self.net = nn.Sequential(
-            nn.Conv2d(in_channels=1,out_channels=1,kernel_size=3,stride=2),
-            nn.ReLU(),
-            nn.Conv2d(in_channels=1,out_channels=1,kernel_size=2,stride=2),
-            nn.Flatten(),
-            nn.Linear(36,32),
-            nn.ReLU(),
-            nn.Linear(32,10)
-            # nn.Softmax()
-        ).cuda()
+    def __init__(self,testdataset,traindataset,logpath,savepath = "model/classifier.pkl",EPOCH = 16,load_from_file = None) -> None:
+        if load_from_file is None:
+            self.net = nn.Sequential(
+                nn.Conv2d(in_channels=1,out_channels=1,kernel_size=3,stride=2),
+                nn.ReLU(),
+                nn.Conv2d(in_channels=1,out_channels=1,kernel_size=2,stride=2),
+                nn.Flatten(),
+                nn.Linear(36,32),
+                nn.ReLU(),
+                nn.Linear(32,10)
+                # nn.Softmax()
+            ).cuda()
+        else:
+            self.net = torch.load(load_from_file)
         self.savepath = savepath
         self.testloader = DataLoader(testdataset,batch_size=32,shuffle=True)
         self.trainloader = DataLoader(traindataset,batch_size=64,shuffle=True)

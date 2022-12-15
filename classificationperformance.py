@@ -44,9 +44,9 @@ def trainwithgenerate():
     classifier.train()
     classifier.save()
 
-def trainwithgenerateood():
+def trainwithgenerateood(load_from_file = None):
     mydataset = generatedataset("generatepicture_withood")
-    classifier = Trainforclassifier(testdataset=data_test,traindataset=mydataset,logpath='./logs/classifier/ood',savepath="./logs/models/oodmodel",EPOCH=64)
+    classifier = Trainforclassifier(testdataset=data_test,traindataset=mydataset,logpath='./logs/classifier/ood',savepath="./logs/models/oodmodel",EPOCH=64,load_from_file=load_from_file)
     classifier.train()
     classifier.save()
 
@@ -56,4 +56,4 @@ if __name__ == "__main__":
     # trainbaseline()
     # trainwithgenerate()
     # _trainclassifierwithgeneratedpdata()
-    trainwithgenerateood()
+    trainwithgenerateood(load_from_file="./logs/models/oodmodel")
