@@ -44,13 +44,27 @@ class cvaeforeachclass(object):
         self.optimfeature = torch.optim.Adam(self.featurenet.parameters(),lr = 0.0001)
         self.optimoodclassification = torch.optim.Adam(self.oodclassificationnet.parameters(),lr = 0.0001)
     
+    def zero_grad(self):
+        self.optimdecoder.zero_grad()
+        self.optimencoder.zero_grad()
+        self.optimfeature.zero_grad()
+        self.optimoodclassification.zero_grad()
+    
+    def step(self):
+        self.optimdecoder.step()
+        self.optimencoder.step()
+        self.optimfeature.step()
+        self.optimoodclassification.step()
+
     def trainforanepoch(self):
         from tqdm import tqdm
         for images,labels in tqdm(self.trainloader):
+            self.zero_grad()
             images = images.cuda()
             labels = images.cuda()
             mu,sigma = self.encoder.forward(images,labels)
-
+            reconstructimages = self.decoder.forward(sigma,mu,labels)
+            
             
         # pass
     
