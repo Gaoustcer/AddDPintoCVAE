@@ -67,17 +67,39 @@ class Encoder(nn.Module):
         return self.muencode(feature),self.sigmaencode(feature)
 
 class Decoder(nn.Module):
-    def __init__(self,add_noise=True,latentspacedim = 2) -> None:
+    def __init__(self,add_noise=True,latentspacedim = 8) -> None:
         super(Decoder,self).__init__()
         # self.feature 
+        # self.Decode = nn.Sequential(
+        #     nn.Linear(latentspacedim + 32,128),
+        #     nn.ReLU(),
+        #     nn.Linear(128,28**2),
+        #     nn.Sigmoid()
+        # )
         self.Decode = nn.Sequential(
-            nn.Linear(latentspacedim + 32,128),
-            nn.ReLU(),
-            nn.Linear(128,28**2),
+            nn.ConvTranspose1d(in_channels=1,
+                out_channels=1,
+                kernel_size=4,
+                stride=2,
+                padding=1),
+            nn.ConvTranspose1d(in_channels=1,
+                out_channels=1,
+                kernel_size=4,
+                stride=2,
+                padding=1)
+        )
+        self.Imagegenerate = nn.Sequential(
+            nn.ConvTranspose2d(
+                in_channels=1,out_channels=1,
+                kernel_size=(3,4),
+                stride=(2,3),
+                padding=(3,2),
+                output_padding=1),
             nn.Sigmoid()
         )
         self.embedding = nn.Embedding(num_embeddings=10,
             embedding_dim=32)
+        self.latentdim = latentspacedim
         if add_noise:
             for param in self.parameters():
                 param.register_hook(backwardhook)
@@ -85,16 +107,22 @@ class Decoder(nn.Module):
     
     def forward(self,sigma,mu,labels):
         labels = self.embedding(labels)
-        noise = torch.randn_like(sigma).cuda()
-        sigma = torch.exp(0.5 * sigma)
-        
-        # output result is log sigma
-        feature = noise * sigma + mu
+        if sigma != None and mu != None:
+            noise = torch.randn_like(sigma).cuda()
+            sigma = torch.exp(0.5 * sigma)
+            
+            # output result is log sigma
+            feature = noise * sigma + mu
+        else:
+            feature = torch.normal(0,1,(len(labels),self.latentdim)).cuda()
         # print("labels shape",labels.shape)
         # print('sigma shape',sigma.shape)
         # print("feature shape is",feature.shape)
-        feature = torch.concat([feature,labels],-1)
-        return self.Decode(feature),feature
+        feature = torch.concat([feature,labels],-1).unsqueeze(1)
+        # print(feature.shape)
+        images = self.Decode(feature).reshape(-1,1,16,10)
+        return self.Imagegenerate(images),feature
+        # return self.Decode(feature),feature
 
 
 if __name__ == "__main__":
