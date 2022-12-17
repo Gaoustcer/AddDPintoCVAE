@@ -77,7 +77,16 @@ class generatedataset(Dataset):
         return self.images[index],self.labellist[index]
 # mydataset = generatedataset()
 # dpdataset = generatedataset("generatepicture_DP")
+import numpy as np
+def _generatenumpy(rootpath = "generatepicture_baseline"):
+    dataset = generatedataset(rootpath)
+    images = dataset.images.detach().cpu().numpy()
+    labels = np.array(dataset.labellist)
+    np.save("images.npy",images)
+    np.save("labels.npy",labels)
 if __name__ == "__main__":
+    _generatenumpy()
+    exit()
     from torch.utils.data import DataLoader
     from dataset import data_train
     dataset = mixturedataset(data_train)
