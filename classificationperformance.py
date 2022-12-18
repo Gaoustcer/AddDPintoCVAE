@@ -8,16 +8,17 @@ import torch
 
 
 
-def _seperate_traindataset():
-    len_train = int(0.5 * len(data_train))
+def _seperate_traindataset(alpha = 0.5):
+    len_train = int(alpha * len(data_train))
     len_test = len(data_train) - len_train
     traindataset,testdataset = random_split(data_train,(len_train,len_test))
     return traindataset,testdataset
-def trainanobjectmodel():
-    traindataset,testdataset = _seperate_traindataset()
+
+def trainanobjectmodel(alpha = 0.5):
+    traindataset,testdataset = _seperate_traindataset(alpha)
     torch.save(traindataset,"logs/traindataset")
     torch.save(testdataset,"logs/testdataset")
-    classifier = Trainforclassifier(testdataset=testdataset,traindataset=traindataset,logpath="logs/classifier/targetmodel",savepath="logs/models/targetmodel",EPOCH=8)
+    classifier = Trainforclassifier(testdataset=testdataset,traindataset=traindataset,logpath="logs/classifier/targetmodel",savepath="logs/models/targetmodel",EPOCH=32)
     classifier.train()
     classifier.save()
 
@@ -62,7 +63,8 @@ def trainwithgenerateood(load_from_file = None):
     classifier.save()
 
 if __name__ == "__main__":
-    # trainanobjectmodel()
+    trainanobjectmodel(alpha = 0.1)
+    exit()
 
     # trainbaseline()
     # trainwithgenerate()
