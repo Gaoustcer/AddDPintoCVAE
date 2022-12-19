@@ -18,7 +18,7 @@ def trainanobjectmodel(alpha = 0.5):
     traindataset,testdataset = _seperate_traindataset(alpha)
     torch.save(traindataset,"logs/traindataset")
     torch.save(testdataset,"logs/testdataset")
-    classifier = Trainforclassifier(testdataset=testdataset,traindataset=traindataset,logpath="logs/classifier/targetmodel",savepath="logs/models/targetmodel",EPOCH=32)
+    classifier = Trainforclassifier(testdataset=testdataset,traindataset=traindataset,logpath="logs/classifier/targetmodel",savepath="logs/models/targetmodel",EPOCH=128)
     classifier.train()
     classifier.save()
 
@@ -63,7 +63,7 @@ def trainwithgenerateood(load_from_file = None):
     classifier.save()
 
 if __name__ == "__main__":
-    trainanobjectmodel(alpha = 0.1)
+    trainanobjectmodel(alpha = 0.4)
     exit()
 
     # trainbaseline()

@@ -18,10 +18,11 @@ class Membershipdataset(Dataset):
             labels.append(0)
         self.image = torch.stack(images,dim=0)
         self.labels = torch.tensor(labels,dtype=torch.int64).cuda()
+        print("label sum is",sum(self.labels))
 
     def __len__(self):
         return len(self.labels)
     
     def __getitem__(self, index):
-        return self.image[index],self.labels
+        return self.image[index],self.labels[index]
         # return super().__getitem__(index)

@@ -78,12 +78,12 @@ class generatedataset(Dataset):
 # mydataset = generatedataset()
 # dpdataset = generatedataset("generatepicture_DP")
 import numpy as np
-def _generatenumpy(rootpath = "generatepicture_baseline"):
+def _generatenumpy(rootpath = "generatepicture_withood"):
     dataset = generatedataset(rootpath)
     images = dataset.images.detach().cpu().numpy()
     labels = np.array(dataset.labellist)
-    np.save("images.npy",images)
-    np.save("labels.npy",labels)
+    np.save("oodimages.npy",images)
+    np.save("oodlabels.npy",labels)
 if __name__ == "__main__":
     _generatenumpy()
     exit()
